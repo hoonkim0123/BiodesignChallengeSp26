@@ -66,41 +66,41 @@
       ctx.fillRect(0, 0, W, H);
       ctx.globalAlpha = 1;
 
-      // 스트라이프 생성
-      const rows = 8;
+      const rows = 12; // 밀도를 높여 침묵과의 대비를 강조
       const stripeH = H / (rows + 1);
-      const leftX = W * 0.12;
-      const rightX = W * 0.58;
-      const stripeWLeft = W * 0.34;
-      const stripeWRight = W * 0.34;
+      const leftX = W * 0.12, rightX = W * 0.58;
+      const stripeW = W * 0.34;
 
       for (let r = 0; r < rows; r++) {
+        // 25% 확률로 행 전체를 비워 '침묵(공백)'을 생성
+        if (Math.random() < 0.25) continue; 
+
         const y = (r + 1) * stripeH + rand(-25, 25);
 
-        // 왼쪽 블록
+        // 왼쪽 행위자 (신체적 리듬)
         ctx.fillStyle = "rgba(235,235,235,0.9)";
-        ctx.fillRect(leftX + rand(-18, 18), y, stripeWLeft, rand(34, 56));
-        drawSmearRect(leftX, y, stripeWLeft, rand(34, 56), 0.16);
+        ctx.fillRect(leftX + rand(-18, 18), y, stripeW, rand(34, 56));
+        drawSmearRect(leftX, y, stripeW, rand(34, 56), 0.16);
 
-        // 오른쪽 블록
+        // 오른쪽 행위자 (시스템적 반응)
         ctx.fillStyle = "rgba(60,60,60,0.9)";
-        ctx.fillRect(rightX + rand(-18, 18), y + rand(-10, 10), stripeWRight, rand(34, 56));
-        drawSmearRect(rightX, y, stripeWRight, rand(34, 56), 0.12);
-      }
+        ctx.fillRect(rightX + rand(-18, 18), y + rand(-10, 10), stripeW, rand(34, 56));
+        drawSmearRect(rightX, y, stripeW, rand(34, 56), 0.12);
+  }
 
-      // 중앙 흐릿한 통로
-      ctx.globalAlpha = 0.22;
-      ctx.fillStyle = "#888";
-      ctx.fillRect(W * 0.44, 0, W * 0.12, H);
-      ctx.globalAlpha = 1;
+  // 중앙 통로 (Despret의 'Partition' 개념 반영)
+  ctx.globalAlpha = 0.15;
+  ctx.fillStyle = "#888";
+  ctx.fillRect(W * 0.44, 0, W * 0.12, H);
+  ctx.globalAlpha = 1;
 
-      // 비네트
-      const g = ctx.createRadialGradient(W/2, H/2, H*0.15, W/2, H/2, H*0.75);
-      g.addColorStop(0, "rgba(0,0,0,0)");
-      g.addColorStop(1, "rgba(0,0,0,0.55)");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, W, H);
-    }
+  // 비네트 효과
+  const g = ctx.createRadialGradient(W/2, H/2, H*0.15, W/2, H/2, H*0.75);
+  g.addColorStop(0, "rgba(0,0,0,0)");
+  g.addColorStop(1, "rgba(0,0,0,0.6)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+}
 
     resize();
   </script>
