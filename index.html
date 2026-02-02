@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crosswalk Score</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #111; }
+    canvas { display: block; margin: 0 auto; background: #1a1a1a; }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+
+  <script>
+    const canvas = document.getElementById("c");
+    const ctx = canvas.getContext("2d");
+
+    function resize() {
+      const w = Math.min(900, window.innerWidth);
+      const h = Math.min(1400, window.innerHeight);
+      canvas.width = w;
+      canvas.height = h;
+      render();
+    }
+    window.addEventListener("resize", resize);
+
+    function rand(a, b) { return a + Math.random() * (b - a); }
+
+    function noiseLayer() {
+      const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const d = img.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const n = Math.floor(rand(0, 35));
+        d[i]   = d[i] + n;
+        d[i+1] = d[i+1] + n;
+        d[i+2] = d[i+2] + n;
+        d[i+3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+    }
+
+    function drawSmearRect(x, y, w, h, baseAlpha = 0.22) {
+      // 잔상 느낌: 여러 겹으로 가로로 살짝씩 밀기
+      for (let i = 0; i < 18; i++) {
+        const dx = rand(-28, 28);
+        const dy = rand(-2, 2);
+        const a = baseAlpha * (1 - i / 18);
+        ctx.globalAlpha = a;
+        ctx.fillRect(x + dx, y + dy, w + rand(-12, 24), h);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function render() {
+      const W = canvas.width, H = canvas.height;
+
+      // 배경
+      ctx.fillStyle = "#222";
+      ctx.fillRect(0, 0, W, H);
+      noiseLayer();
+
+      // 전체적인 안개 같은 레이어
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = "#555";
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalAlpha = 1;
+
+      // 스트라이프 생성
+      const rows = 8;
+      const stripeH = H / (rows + 1);
+      const leftX = W * 0.12;
+      const rightX = W * 0.58;
+      const stripeWLeft = W * 0.34;
+      const stripeWRight = W * 0.34;
+
+      for (let r = 0; r < rows; r++) {
+        const y = (r + 1) * stripeH + rand(-25, 25);
+
+        // 왼쪽 블록
+        ctx.fillStyle = "rgba(235,235,235,0.9)";
+        ctx.fillRect(leftX + rand(-18, 18), y, stripeWLeft, rand(34, 56));
+        drawSmearRect(leftX, y, stripeWLeft, rand(34, 56), 0.16);
+
+        // 오른쪽 블록
+        ctx.fillStyle = "rgba(60,60,60,0.9)";
+        ctx.fillRect(rightX + rand(-18, 18), y + rand(-10, 10), stripeWRight, rand(34, 56));
+        drawSmearRect(rightX, y, stripeWRight, rand(34, 56), 0.12);
+      }
+
+      // 중앙 흐릿한 통로
+      ctx.globalAlpha = 0.22;
+      ctx.fillStyle = "#888";
+      ctx.fillRect(W * 0.44, 0, W * 0.12, H);
+      ctx.globalAlpha = 1;
+
+      // 비네트
+      const g = ctx.createRadialGradient(W/2, H/2, H*0.15, W/2, H/2, H*0.75);
+      g.addColorStop(0, "rgba(0,0,0,0)");
+      g.addColorStop(1, "rgba(0,0,0,0.55)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    resize();
+  </script>
+</body>
+</html>
